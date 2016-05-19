@@ -1,0 +1,155 @@
+---
+title: "Ejercicios Tema 1"
+author: "Jose Manuel Valdeolmillos"
+date: "19 de mayo de 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Ejercicio 1
+
+Resolver las siguientes operaciones (Parte 1)
+
+```{r ejercicio 1a}
+
+((3^5 + 2^9) - log(2))
+
+```
+
+Resolver las siguientes operaciones (Parte 2)
+
+```{r ejercicio 1b}
+
+(1/sqrt(log(2) * 2^5))
+
+```
+
+### Ejercicio 2
+
+Defina los siguientes vectores x={4,2,1} e y={1,0,-1} y calcule la suma de los elementos de “x”.
+
+```{r ejercicio 2a}
+x <- c(4, 2, 1)
+y <- c(1, 0, -1)
+
+sum(x)
+
+```
+
+calcule la suma de los elementos de “x” más “y”
+
+```{r ejercicio 2b}
+
+x + y
+
+```
+
+### Ejercicio 3
+
+Construya las siguientes matrices de datos x e y. Multiplique por 2 la matriz “x”
+
+```{r ejercicio 3a}
+
+x <- matrix(c(5,1,3,2), nrow = 2, byrow = T)
+y <- matrix(c(1,7,4,5), nrow = 2, byrow = T)
+x; y
+
+x * 2
+
+```
+
+Sumar ambas matrices
+
+```{r ejercicio 3b}
+
+x + y
+
+```
+
+### Ejercicio 4
+
+Construir el dataframe:
+
+```{r ejercicio 4}
+
+x <- data.frame(sexo = c("M", "F", "M"), edad = c(30,35,31), peso = c(80,61,85))
+
+```
+
+### Ejercicio 5
+
+Crea una función que tome un vector numérico como argumento y calcule la media y tamaño (o largo) del vector.
+
+```{r ejercicio 5}
+
+avg_tam <- function(x) {
+      print(mean(x, na.rm = TRUE))
+      print(length(x))
+}
+
+avg_tam(1:7)
+
+```
+
+### Ejercicio 6
+
+Crea una función que tome un valor numérico como argumento y nos devuelva un valor lógico indicando si es mayor (TRUE) o menor (FALSE) que 3.
+
+```{r ejercicio 6}
+
+foo <- function(num) {
+      ifelse(num > 3, TRUE, FALSE)
+}
+
+foo(4)
+
+```
+
+
+### Ejercicio 7
+
+En el siguiente vector sustituya los valores perdidos por 0: x={0,1,2,NA,3,2,1}
+
+```{r ejercicio 7}
+
+x <- c(0,1,2,NA,3,2,1)
+
+x[is.na(x)] <- 0
+
+x
+
+```
+
+
+### Ejercicio 8
+
+Cargue los datos “trees” y utilice la función “apply” para calcular la media de cada variable de la base de datos.
+
+```{r ejercicio 8}
+
+data("trees")
+
+apply(trees, 2, mean)
+
+```
+
+
+### Ejercicio 9
+
+Utilice la función “reshape” para transformar los datos de formato “wide” a “long”. 
+NOTA: los resultados pueden estar en un orden distinto.
+
+```{r ejercicio 9}
+
+wide <- data.frame(id=c(1,2,3), sex=c("F", "M", "F"), V1=c(0.89,0.30,0.22), V2=c(-0.45, 0.21, -0.71), V3=c(0.21, 0.37, -0.54))
+
+wide
+
+long <- reshape(wide, varying = c("V1", "V2","V3"), v.names = "V", timevar = "N", direction = "long")
+
+long
+
+```
