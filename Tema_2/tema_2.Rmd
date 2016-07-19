@@ -1,0 +1,251 @@
+---
+title: "Tema 2"
+author: "Jose Manuel Valdeolmillos"
+date: "19 de julio de 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicio 1
+
+Utiliza los datos iris que corresponden a mediciones (en centímetros) de 4 variables: largo y ancho de los pétalos y sépalos; para 50 flores de 3 especies distintas de plantas Iris setosa, versicolor, y virginica.
+
+#### ¿Cuántos datos (o casos) tenemos para cada especie?
+
+```{r Ejercicio 1a}
+
+head(iris)
+
+```
+
+```{r Ejercicio 1b}
+
+attach(iris)
+
+```
+
+```{r Ejercicio 1c}
+
+# tenemos 50 casos de cada especie
+table(Species)
+
+```
+
+#### ¿Qué porcentaje representan del total de casos?
+```{r Ejercicio 1d}
+
+# que se corresponde con el 33,3%
+round(prop.table(table(Species)), 3) * 100
+
+```
+
+#### Realice los gráficos pertinentes para cada tipo de variable (cualitativa vs. cuantitativa)
+```{r Ejercicio 1e}
+
+# Gráfico para Species - Variable Cualitativa. Diagrama de barras, por ejemplo:
+
+barplot(round(prop.table(table(Species)), 3) * 100, 
+        xlab="Clases de Iris", 
+        main = "Porcentajes")
+
+```
+
+```{r Ejercicio 1f}
+
+# Gráfico para resto de variables - Variables Cuantitativas Contínuas. Histogramas, por ejemplo:
+
+par(mfrow=c(2,2))
+hist(iris$Sepal.Length, breaks = 4)
+hist(iris$Sepal.Width, breaks = 4)
+hist(iris$Petal.Length, breaks = 4)
+hist(iris$Petal.Width, breaks = 4)
+
+```
+
+```{r Ejercicio 1g}
+
+# Gráfico para resto de variables - Variables Cuantitativas Contínuas. Boxplot
+# Muestra más información y también outliers:
+
+par(mfrow=c(2,2))
+boxplot(iris$Sepal.Length)
+boxplot(iris$Sepal.Width)
+boxplot(iris$Petal.Length)
+boxplot(iris$Petal.Width)
+
+```
+
+#### ¿Cuál es la media clásica y robusta del ancho del sépalo para cada especie?. Realice diagrama de cajas.
+```{r Ejercicio 1h}
+
+# Media clásica por especie:
+tapply(iris$Sepal.Width, iris$Species, mean)
+
+# Media winsorizada por especie:
+library(WRS2)
+tapply(iris$Sepal.Width, iris$Species, winmean, tr=.2)
+
+# Media recortada por especie:
+tapply(iris$Sepal.Width, iris$Species, mean, trim=.2)
+
+library("ggplot2")
+library("gridExtra")
+library("plyr")
+
+# Diagrama de cajas para la longitud del sépalo por especie:
+ggplot(iris, aes(x=Species, y=Sepal.Width, fill=factor(Species))) + geom_boxplot() + theme_minimal()
+
+```
+
+#### ¿Qué correlaciones existen entre las distintas medidas tomadas a cada planta? Realice un gráfico bidimensional para observarlo. 
+#### Interpreta los resultados.
+
+```{r Ejercicio 1i, warning=FALSE, message=FALSE}
+
+# Plot genérico para ver las correlaciones entre pares de variables:
+plot(iris)
+
+# Otra previsualización más sencilla. Tamaño de círculo es el p-valor y color azul positivo, color rojo negativo.
+m <- cor(iris[,1:4])
+library('corrplot')
+par(mfrow=c(1,1))
+corrplot(m, method="circle")
+
+# Otra previsualización
+library(PerformanceAnalytics)
+chart.Correlation(m, histogram=T, pch=19)
+
+```
+#### La más clara (más fuerte y positiva) es la correlación entre Petal.Length y Petal.Width
+#### Existen también correlación, aunque menos fuerte (y positiva) entre Sepal.Length y Petal.Length y Sepal.Length y Petal.Width
+
+
+## Ejercicio 2
+
+Con los datos de Davis con los que calculamos el IMC realiza:
+
+#### Gráfico de barras y de sectores para las categorías del IMC por sexo.
+```{r Ejercicio 2a, warning=FALSE}
+
+library(car)
+data(Davis)
+head(Davis)
+attach(Davis)
+
+# creamos una función para calcular el IMC
+imc <- function(w,h){w/(h/100)^2}
+# calculamos el IMC
+imcdata <- imc(weight, height)
+# creamos las categorías de IMC
+imcc <- cut(imcdata, breaks=c(0, 15, 18.5, 25, 30))
+# obtenemos la tabla de frecuencias de IMC
+imcfrec <- table(imcc)
+cbind(imcfrec)
+# agregamos las etiquetas
+levels(imcc) <- c("infrapeso","delgada","normal","sobrepeso","obesidad")
+datos<-data.frame(Davis, IMC=imcdata, IMCc=imcc)
+# eliminamos los errores
+datos <- datos[!is.na(datos$IMCc),]
+head(datos)
+
+gbarras <- table(datos$IMCc,datos$sex)
+
+ggplot(datos,aes(x=factor(sex),fill=factor(IMCc))) +
+geom_bar(stat = "count", position="dodge")+
+theme_minimal()
+
+par(mfrow=c(1,2))
+#para agregar los porcentajes de las categorías
+x <- table(datos$IMCc, datos$sex)
+labels<-levels(imcc)
+piepercent<- paste(round(100*x[,1]/sum(x[,1]), 1),"%",sep="")
+pie(x[,1], main= "Mujeres", cex=0.6, labels=piepercent, col=rainbow(length(x)))
+legend("topleft", labels, cex=0.6, fill=rainbow(length(x[,2])),bty="n")
+
+piepercent<- paste(round(100*x[,2]/sum(x[,2]), 1),"%",sep="")
+pie(x[,2], main="Hombres", cex=0.6, labels=piepercent, col=rainbow(length(x)))
+legend("topleft", labels, cex=0.6, fill=rainbow(length(x[,2])),bty="n")
+
+```
+
+#### Gráficos de cajas e histogramas para la variable IMC numérica también por sexo. ¿Existe algún outlier? ¿Cuáles?
+#### Interpreta los resultados.
+
+```{r Ejercicio 2b, warning=FALSE, message=FALSE}
+
+# Gráfico de cajas:
+ggplot(datos, aes(x=sex, y=IMC, fill=factor(IMCc))) + geom_boxplot() + theme_minimal()
+
+# atípicos (outliers) modelo 1
+atipicos <- boxplot(datos$IMC, plot=F)
+atipicos$out
+
+# atípicos (outliers) modelo 2
+library(rapportools)
+rp.outlier(datos$IMC)
+
+# atípicos (outliers) modelo 3
+library(outliers)
+outlier(datos$IMC)
+
+```
+
+#### Detecta aplicando el modelo 1, para el Sexo Femenino los outliers: 29.80278 29.73704 y aplicando el modelo 3 detecta: 29.80278
+
+## Ejercicio 3
+
+Utiliza los datos “Arthritis” (paquete “vcd”) sobre un ensayo clínico de doble ciego que investiga un nuevo tratamiento para la artritis reumatoide. Tenemos información de 84 observaciones de 5 variables: la identificación del paciente (ID), el tratamiento (Treatment: Placebo, Treated), el sexo (Sex: Female, Male), la edad (Age) y la mejoría (Improved: None, Some, Marked).
+
+#### Obtener las tablas de frecuencias.
+
+```{r Ejercicio 3a, warning=FALSE, message=FALSE}
+
+# Carga de datos:
+library(vcd)
+d1 <- Arthritis
+d1$cut<-cut(d1$Age, c(20,40,60,80))
+head(d1)
+attach(d1)
+
+# Tabla de frecuencias (2D por tratamiento y mejoría)
+table(Treatment, Improved)
+
+# Con Sumas de valores
+addmargins(table(Treatment, Improved))
+
+# Tabla de frecuencias (3D por tratamiento, sexo y mejoría)
+ftable(table(Treatment, Sex, Improved))
+
+# Tabla multidimensional
+ftable(d1, row.vars = c("Treatment", "Sex"), col.vars = c("Improved", "cut"))
+
+# Otra forma de tabla
+ftable(d1, row.vars = c("Treatment", "Improved"), col.vars = c("Sex", "cut"))
+ftable(d1, row.vars = c("Sex", "cut"), col.vars = c("Treatment", "Improved"))
+ftable(d1, row.vars = c("Sex", "cut"), col.vars = c("Improved", "Treatment"))
+
+```
+
+#### Medidas de Asociación entre las variables. Interpreta los resultados.
+
+```{r Ejercicio 3b, warning=FALSE, message=FALSE}
+
+# Medidas de asociación entre variable tratamiento y mejoría.
+table(d1$Treatment, d1$Improved)
+summary(assocstats(table(d1$Treatment,d1$Improved)))
+
+# Medidas de asociación entre variable sexo y mejoría.
+table(d1$Sex, d1$Improved)
+summary(assocstats(table(d1$Sex,d1$Improved)))
+
+# Medidas de asociación entre variable edad y mejoría.
+table(d1$cut, d1$Improved)
+summary(assocstats(table(d1$cut,d1$Improved)))
+
+```
+##### Para Mejoría por tratamiento: Cramer es 0,39 lo que quiere decir que ambas variables tienden a ser independientes. Está más cerca de 0 que de 1
+##### Para mejoría por sexo: Cramer es 0,24 lo que quiere decir que ambas variables tienden a ser independientes. Está más cerca de 0 que de 1
+##### Para mejoría por edad: Cramer es 0,28 lo que quiere decir que ambas variables tienden a ser independientes. Está más cerca de 0 que de 1
