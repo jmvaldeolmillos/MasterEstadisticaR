@@ -1,0 +1,18 @@
+EJERCICIO 1. ANÁLISIS CLUSTER (HC Y NHC).
+Con el conjunto de datos "iris" realice el análisis cluster mediante métodos jerárquico y no jerárquico (k-medias), sobre las variables "Sepal.Length", "Sepal.Width", "Petal.Length" y "Petal.Width".
+Compare los resultados con la clasificación por especies que viene en el conjunto de datos.
+Grafique e interprete los resultados.
+
+
+EJERCICIO 2. ANÁLISIS DISCRIMINANTE (LDA).
+Con el conjunto de datos "iris" realice el análisis discriminante lineal (LDA).
+Grafique e interprete los resultados.
+
+
+EJERCICIO 3. COMPARACIÓN MULTIVARIADA.
+Con el conjunto de datos "iris" compare de manera conjunta las variables "Sepal.Length", "Sepal.Width", "Petal.Length" y "Petal.Width" según los grupos de especies.
+Grafique e interprete los resultados.
+
+EJERCICIO 4. 
+
+Realice mediante esquemas un resúmen de los métodos de ordenación PCA/RDA/pRDA, CA/CCA/pCA, NMDS/MDS.

@@ -1,0 +1,70 @@
+---
+title: "Tema 6"
+author: "Jose Manuel Valdeolmillos"
+date: "6 de septiembre de 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicio 1
+
+Utiliza los datos "Cetaceans.txt" sobre la estimación de la edad (Age) de los odontocetos mediante una técnica de parafina que podría verse afectada por el método de tinción. Se incluyen como variables explicativas el sexo (Sex, macho o hembra), la localización del especímen (Location, Escocia o España), el método de tinción del ensayo (Stain, Mayer Haematoxylin o Ehlrich Haematoxylin o Toluidine Blue), y la especie (Delphinusdelphis, Lagenorhynchusacutus, Phocoenaphocoena, Stenellacoeruleoalba, Stenellafrontalis o Tursiopstruncatus).
+  
+- Discuta por qué puede ser útil aplicar modelos mixtos en estos datos.
+
+- Aplique el protocolo de modelos mixtos (MM).
+
+NOTA: para especificar este tipo de anidamiento en los datos puedes utilizar "random=~1|Species/DolphinID".
+
+```{r Ejercicio 1a, warning=FALSE, message=FALSE}
+
+# Leemos y cargamos los datos:
+
+setwd("~/Repos/Master_Estadistica/Tema_6")
+cet<-read.table("data/Cetaceans.txt",header=T)
+head(cet)
+str(cet)
+
+```
+  
+```{r Ejercicio 1b, warning=FALSE, message=FALSE}
+
+# Realizamos el ajuste de los datos:
+
+# DolphinID es la identificación de cada animal
+cet$DolphinID<-factor(cet$DolphinID)
+#eliminar aquellos especímenes donde no se determinó el sexo
+cet<-cet[-which(cet$Sex==0),]
+cet$Sex<-factor(cet$Sex)
+str(cet)
+
+```
+  
+Se usarán modelos mixtos debido a que combinamos distintos tipos de efectos o influencia de las variables explicativas sobre la respuesta, en distintos parámetros de los modelos. Estudiamos la edad en función del método de tinción (explicando si puede verse afectada o no). Como variables explicativas trabajamos con Sex, Location, Species y Stain teniendo de cada ID 3 observaciones, variando Stein (tinción).
+  
+En nuestro caso, contamos con datos con estructura agregada en distintas clases (Species) no ordenados. Que es la variable categórica. Por lo que trabajaremos con modelos multinivel o jerárquicos (Modelos Mixtos)
+
+### 1)  Estructura aleatoria óptima. 
+  
+ - construir un modelo saturado (fijo). Con todas las variables.
+ 
+```{r Ejercicio 1c, warning=FALSE, message=FALSE}
+
+library("nlme")
+
+m1<-gls(Age~1+Stain*Location, method="REML", data=cet)
+# Otro que considera las Species.
+m2<-lme(Age~1+Stain*Location, method="REML", data=cet, random=~1|Species/DolphinID)
+# Otro que considera dentro de las Species, la tinción.
+m3<-lme(Age~1+Stain*Location, method="REML", data=cet, random=~Stain|Species/DolphinID)
+
+# Mostramos valores AIC
+AIC(m1,m2,m3)
+
+# Mostramos valores ANOVA
+anova(m1,m2,m3)
+
+```
